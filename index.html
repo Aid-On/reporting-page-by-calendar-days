@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>作業入力【営業日】</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    table { border-collapse: collapse; margin-top: 20px; width: 100%; }
+    table, th, td { border: 1px solid #ccc; }
+    th, td { padding: 8px; text-align: center; }
+    input, select { padding: 4px; }
+    .readonly { background-color: #f0f0f0; }
+    .nonworking { background-color: #ddd; } /* 非稼働の場合のグレー表示 */
+    .error { color: red; }
+    .controls { margin-bottom: 10px; }
+    .buttons { margin-bottom: 10px; }
+    .buttons button { margin-right: 10px; }
+    .defaults { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; }
+    .defaults label { margin-right: 10px; }
+  </style>
+  <!-- Excel出力用SheetJSライブラリ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <h1>作業入力アプリ【営業日リスト】</h1>
+  <p>
+    ※ 年・月を指定または前月／次月ボタンで切替え、該当月の営業日データを読み込みます。<br>
+    ※ 入力変更時に自動で再計算・保存され、最後に開いた月は次回読み込み時に自動設定されます。<br>
+    ※ 「デフォルト適用」ボタンで、下部のデフォルト設定の値を現在の全行に反映します。<br>
+    ※ Excelダウンロードボタンより、Excel 表として出力できます。（出力時はステータス・非稼働行は除外）
+  </p>
+
+  <!-- 年・月指定用 -->
+  <div class="controls">
+    <label>
+      年：
+      <input type="number" id="yearInput" min="2000" max="2100" value="">
+    </label>
+    <label>
+      月：
+      <input type="number" id="monthInput" min="1" max="12" value="">
+    </label>
+  </div>
+
+  <!-- ボタン群：前月／次月 -->
+  <div class="buttons">
+    <button id="prevMonthButton">前月</button>
+    <button id="nextMonthButton">次月</button>
+  </div>
+
+  <!-- デフォルト設定用 -->
+  <div class="defaults">
+    <h3>デフォルト設定</h3>
+    <label>
+      作業場所：
+      <input type="text" id="defaultWorkPlace" placeholder="例：オフィス">
+    </label>
+    <label>
+      始業時間：
+      <input type="time" id="defaultStartTime" step="1800" value="09:00">
+    </label>
+    <label>
+      終業時間：
+      <input type="time" id="defaultEndTime" step="1800" value="18:00">
+    </label>
+    <label>
+      離席時間：
+      <input type="number" id="defaultBreakTime" min="0" step="30" value="0" style="width:60px;">分
+    </label>
+    <label>
+      作業内容：
+      <input type="text" id="defaultWorkContent" placeholder="例：会議">
+    </label>
+    <label>
+      ステータス：
+      <select id="defaultStatus">
+        <option value="稼働" selected>稼働</option>
+        <option value="非稼働">非稼働</option>
+      </select>
+    </label>
+    <div style="margin-top: 20px">
+      <button id="applyDefaultsButton">全ての日付に適用</button>
+    </div>
+  </div>
+
+  <!-- 作業入力表 -->
+  <table>
+    <thead>
+      <tr>
+        <th>＃</th>
+        <th>作業日</th>
+        <th>ステータス</th>
+        <th>作業場所</th>
+        <th>始業時間</th>
+        <th>終業時間</th>
+        <th>離席時間</th>
+        <th>作業時間</th>
+        <th>作業内容</th>
+      </tr>
+    </thead>
+    <tbody id="workTableBody">
+      <!-- 営業日データがここに生成されます -->
+    </tbody>
+  </table>
+
+  <h3>総稼動時間：<span id="totalWorkTime">00:00</span></h3>
+  <p class="error" id="errorMsg"></p>
+  
+  <!-- Excelダウンロードボタン -->
+  <button id="downloadButton">Excelダウンロード</button>
+  
+  <!-- 外部JSファイルの読み込み（依存関係に注意して順番に読み込む） -->
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/table.js"></script>
+  <script src="js/excel.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
