@@ -4,16 +4,13 @@
 let holidays = [];
 let rowNumber = 1;
 
-// 指定された年・月の営業日リスト生成
+// 指定された年・月の日付リスト生成（全カレンダー日付を対象）
 function generateBusinessDayList(year, month) {
-  // ※以前は以下の行で現在の選択月以外のlocalStorageデータをリセットしていましたが、
-  //     前回入力内容を保持するため、この呼び出しを削除しています。
-  // resetLocalStorageForOtherMonths(year, month);
-
+  // ※今回はカレンダーの日付全てを表示するため、休日をスキップしません。
   fetch('https://holidays-jp.github.io/api/v1/' + year + '/date.json')
     .then(response => response.json())
     .then(data => {
-      holidays = Object.keys(data);
+      holidays = Object.keys(data);  // 祝日データは取得しておく（必要に応じて参照可能）
       createTable(year, month);
     })
     .catch(error => {
@@ -45,6 +42,7 @@ function createTable(year, month) {
   const lastDate = new Date(year, month, 0);
   
   if (savedData && Array.isArray(savedData) && savedData.length > 0) {
+    // 保存済みデータがある場合はその内容を利用
     savedData.forEach((rowObj, index) => {
       const tr = document.createElement("tr");
       tr.dataset.rowIndex = index + 1;
@@ -68,12 +66,9 @@ function createTable(year, month) {
       updateRowStyle(tr);
     });
   } else {
+    // 保存済みデータがない場合、当月のすべての日付について行を生成
     let index = 0;
     for (let d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
-      const dateStr = formatDateForComparison(d);
-      const dayOfWeek = d.getDay();
-      // 休日（週末または祝日）はスキップ
-      // if (dayOfWeek === 0 || dayOfWeek === 6 || holidays.includes(dateStr)) continue;
       index++;
       const formattedDate = formatJapaneseDate(d);
       const tr = document.createElement("tr");
