@@ -151,7 +151,7 @@ function calculateTotalWorkTime() {
   document.getElementById("totalWorkTime").textContent = minutesToTimeString(total);
 }
 
-// ステータスに応じた行のスタイル更新
+// ステータスと日付に応じた行のスタイル更新
 function updateRowStyle(tr) {
   const status = tr.querySelector(".status").value;
   if (status === "非稼働") {
@@ -159,6 +159,35 @@ function updateRowStyle(tr) {
   } else {
     tr.classList.remove("nonworking");
   }
+
+  // 日付セルのテキストを取得し、Date オブジェクトに変換
+  const dateText = tr.querySelector(".readonly").textContent.trim();
+  let dateObj = new Date(dateText);
+  if (isNaN(dateObj)) {
+    // 例: "2025/02/02" や "2025-02-02" のような形式の場合の対応
+    const parts = dateText.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+    if (parts) {
+      dateObj = new Date(parts[1], parts[2] - 1, parts[3]);
+    }
+  }
+
+  // 曜日・祝日判定による文字色の設定（デフォルトは黒）
+  let color = "black";
+  if (!isNaN(dateObj)) {
+    // 日付を "YYYY-MM-DD" 形式に整形
+    const yyyy = dateObj.getFullYear();
+    const mm = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+    const dd = dateObj.getDate().toString().padStart(2, '0');
+    const formattedDate = `${yyyy}-${mm}-${dd}`;
+
+    // 日曜または祝日は赤、土曜は青、その他は黒
+    if (dateObj.getDay() === 0 || holidays.includes(formattedDate)) {
+      color = "red";
+    } else if (dateObj.getDay() === 6) {
+      color = "blue";
+    }
+  }
+  tr.style.color = color;
 }
 
 // 「デフォルト適用」ボタン押下時に全行にデフォルト値を反映
